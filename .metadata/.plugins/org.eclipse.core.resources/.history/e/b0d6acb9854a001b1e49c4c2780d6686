@@ -1,0 +1,6 @@
+package insa.lesirreductibles.PlotRadar.controller;
+
+@RestController
+public class PlotRessource {
+	
+}

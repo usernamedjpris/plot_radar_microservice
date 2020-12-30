@@ -1,0 +1,26 @@
+package insa.lesirreductibles.PlotRadar.controller;
+
+import java.io.IOException;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/graph") 
+public class PlotRessource {
+	
+	@GetMapping("/{aaai}") 
+	public String getTrajectory(@PathVariable("aaai") String id) throws IOException{ 
+		
+		
+
+		System.out.println(System.getProperty("user.dir"));
+
+		String command = "cmd.exe /c start python ../plotRadar.py 01:00:5e:50:00:26 12-12-2020 4841AA TRA39U"; 
+		Process p = Runtime.getRuntime().exec(command); 
+
+		return id; 
+	} 
+}

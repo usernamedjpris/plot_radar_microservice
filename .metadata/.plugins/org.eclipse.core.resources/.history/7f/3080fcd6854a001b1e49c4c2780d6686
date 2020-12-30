@@ -1,0 +1,16 @@
+package insa.lesirreductibles.PlotRadar.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/graph") 
+public class PlotRessource {
+	
+	@GetMapping("/{aaai}") 
+	public StudentInfos getTrajectory(@PathVariable("aaai") int id){ 
+
+		
+	    System.out.println("Called");
+		return etudInfos.get(aaai); 
+	} 
+}
