@@ -29,6 +29,6 @@ public class PlotRessource {
             }                                                                                                                    
         } 
 
-		return "<a href=\""+pathResult+"\">"+pathResult; 
+		return pathResult; 
 	} 
 }

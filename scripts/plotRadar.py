@@ -4,19 +4,15 @@ Created on Tue Dec  8 14:37:57 2020
 
 @author: Jérémie
 """
-import seaborn as sns
+
 import os
-import pandas as pd
 import sys
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-#import datetime
+import seaborn as sns
 sns.set()
 from servinglayer import dataaccess
-
-
-
-
 
 
 
@@ -34,7 +30,6 @@ def convert(thetas):
     
 
 
-
 def angle2xy(theta,rho):
     """Convert polar coordinate into cartesian coordinate"""
     x = rho*np.cos(np.radians(theta))
@@ -48,17 +43,15 @@ def format_date(date):
     return date.replace("-","/")+"-00:00"
 
 
+
 def read_data(datedebut,datefin):  
     """read data from a csv file (soon : from a database)"""
     #os.chdir("E:/eDocuments/projet intégrateur/asterix_big_data/parser_tests/")
     #df = pd.read_csv('../../data/new_data.csv', delimiter=';')
     #df = dataaccess.query_range_date_df(format_date(datedebut),format_date(datefin))
     df = dataaccess.query_range_date_df("20/07/29-10:00","20/07/29-12:00") #("29/07/20-10:00","29/07/20-12:00")
-    print(df.shape)
-    print(df.iloc[1])
     return df
     
-
 
 def plot_flight(df,identification,datedebut,datefin):
     """plot and save figure of the given flight (identification) among the flights of the dataset (df)"""
@@ -91,12 +84,10 @@ def plot_flight(df,identification,datedebut,datefin):
     plt.title("AI: "+identification.split(" ")[0]+"    AA:"+identification.split(" ")[-1])  
     
     # saving file and returning PATH
-    PATH = "./plots/"+identification+" "+datedebut+" - "+datefin+".png"    
-    print(PATH)
-    print(os.getcwd())
-    plt.savefig(PATH)
-    print("saved")
-#    plt.show()
+    RELATIVE_PATH = "/plots/"+identification+" "+datedebut+" - "+datefin+".png"    
+    plt.savefig("."+RELATIVE_PATH)
+    print("\n",os.getcwd()+RELATIVE_PATH)
+    #plt.show()
     
 
 
@@ -108,22 +99,24 @@ def main(argv):
     # Deal with args
     if len(sys.argv) == 5:
         radar, datedebut, identification = sys.argv[1], sys.argv[2],str(sys.argv[3])+" "+str(sys.argv[4])
-        datefin = datedebut #a changer : il faut mettre 1 jour de plus
+        datefin = datedebut[:-5]+"23:59" #a changer : il faut mettre jusqu'a la fin de la journee
     elif len(sys.argv) == 6:
-        # radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])+" "+str(sys.argv[5])
-        radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])
+        radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])+" "+str(sys.argv[5])
+        #radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])
 
     else:
-        print('usage: python plotRadar.py @radar JJ-MM-YYYY JJ-MM-YYYY AI AA\nusage: python plotRadar.py @radar JJ-MM-YYYY AI AA\nexample: python plotRadar.py 01:00:5e:50:00:26 12-12-2020 TRA39U 4841AA')
+        print('usage: python plotRadar.py @radar YY-MM-DD-HH:mm YY-MM-DD-HH:mm AI AA\nusage: python3 plotRadar.py @radar YY-MM-DD-HH:mm AI AA\nexample: python plotRadar.py 01:00:5e:50:00:26 20-07-29-10:00 20-07-29-12:00 EVX02EK 38173A')
         sys.exit(12)
         #datedebut, datefin, identification= "12-12-2020", "12-12-2020", "TRA39U 4841AA"#"FPO6610 39666F"VS"JAF7FE 44A835" #"VLG8191 343194"(landed)#"TAR724 02A194"#"AFR1390 3991E1" #"AAF525 398005"
         
     # Read Data    
-    df2 = read_data(datedebut,datefin)  
-    identification = df2.iloc[1]["aa"]
+    try:
+        df2 = read_data(datedebut,datefin)  
+    except:
+        print("no data available")
     # ID
-    #    df2["ID"] = [str(ai).replace(" ","")+" "+str(aa).replace(" ","") for ai, aa in zip(df2["ai"],df2["aa"])]
-    df2["ID"] = df2["aa"]
+    df2["ID"] = [str(tid).replace(" ","")+" "+str(aa).replace(" ","") for tid, aa in zip(df2["tid"],df2["aa"])]
+    #df2["ID"] = df2["aa"]
     # X, Y
     df2["X"],df2["Y"]=angle2xy(convert(df2["theta"]),df2["rho"])
         
@@ -132,7 +125,11 @@ def main(argv):
     df3['Y'] = df2.groupby('ID')['Y'].apply(list).reset_index(name='Y')['Y']
     
     # Plot radar
-    plot_flight(df3,identification,datedebut,datefin)
+    try:
+        plot_flight(df3,identification,datedebut,datefin)
+    except:
+        identification = df2.iloc[1]["tid"]+" "+df2.iloc[1]["aa"]  
+        plot_flight(df3,identification,datedebut,datefin)
 
 
 
