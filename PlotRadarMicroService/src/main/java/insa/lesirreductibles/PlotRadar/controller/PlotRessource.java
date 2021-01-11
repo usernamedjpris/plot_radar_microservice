@@ -16,8 +16,8 @@ public class PlotRessource {
 	@GetMapping("/{aaai}") 
 	public String getTrajectory(@PathVariable("aaai") String id) throws IOException, InterruptedException{ 
 		
-		//String command = "cmd.exe /c E:/eDocuments/\"projet intégrateur\"/plot_radar_microservice/scripts/plotRadar2.py 01:00:5e:50:00:26 12-12-2020 4841AA TRA39U"; 
-	        String command = "python3 /home/user/Documents/plot_radar_microservice/scripts/plotRadar.py 01:00:5e:50:00:52 19-04-2020 21-04-2020 4075C4 21a" 	;
+	//String command = "cmd.exe /c E:/eDocuments/\"projet intégrateur\"/plot_radar_microservice/scripts/plotRadar2.py 01:00:5e:50:00:26 12-12-2020 4841AA TRA39U"; 
+	        String command = "python3 /home/user/Documents/plot_radar_microservice/scripts/plotRadar.py 01:00:5e:50:00:26 20-07-29-10:00 20-07-29-12:00 EVX02EK 38173A" 	;
                 Process p = Runtime.getRuntime().exec(command); 
      	p.waitFor();  
      	String pathResult = "";

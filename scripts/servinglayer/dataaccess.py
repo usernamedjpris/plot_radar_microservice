@@ -18,7 +18,7 @@ def query_range_date(start_date, end_date):
     if end_ts - start_ts < 0:
         raise ValueError("start date must precede end date")
 
-    print(f'start query')
+    #print(f'start query')
 
     body = {
         "query": {
@@ -59,7 +59,7 @@ def query_range_date_df(start_date, end_date):
     data = query_range_date(start_date, end_date)
 
     df = pandas.DataFrame(data=data)
-    print(data[1:5])
+    #print(data[1:5])
     return df
 
 
