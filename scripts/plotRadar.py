@@ -12,6 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 #import datetime
 sns.set()
+from servinglayer import dataaccess
+
+
+
+
 
 
 
@@ -38,13 +43,20 @@ def angle2xy(theta,rho):
 
 
 
-
+def format_date(date):
+    date = date[0:7]+date[9:]
+    return date.replace("-","/")+"-00:00"
 
 
 def read_data(datedebut,datefin):  
     """read data from a csv file (soon : from a database)"""
-    os.chdir("E:/eDocuments/projet intégrateur/asterix_big_data/parser_tests/")
-    return  pd.read_csv('../../data/new_data.csv', delimiter=';')
+    #os.chdir("E:/eDocuments/projet intégrateur/asterix_big_data/parser_tests/")
+    #df = pd.read_csv('../../data/new_data.csv', delimiter=';')
+    #df = dataaccess.query_range_date_df(format_date(datedebut),format_date(datefin))
+    df = dataaccess.query_range_date_df("20/07/29-10:00","20/07/29-12:00") #("29/07/20-10:00","29/07/20-12:00")
+    print(df.shape)
+    print(df.iloc[1])
+    return df
     
 
 
@@ -58,7 +70,7 @@ def plot_flight(df,identification,datedebut,datefin):
     # ploting all flights of the dataset
     for i in range(df.shape[0]):
         plt.plot(df.iloc[i]["X"],df.iloc[i]["Y"],color='#444')
-    df=df.set_index('ID')
+    df = df.set_index('ID')
     
     
     # ploting the desired flight
@@ -79,11 +91,12 @@ def plot_flight(df,identification,datedebut,datefin):
     plt.title("AI: "+identification.split(" ")[0]+"    AA:"+identification.split(" ")[-1])  
     
     # saving file and returning PATH
-    PATH = "E:/eDocuments/\"projet intégrateur\"/plot_radar_microservice"
-    PATH += "/plots/"+identification.replace(" ","-")+"_"+datedebut+"_"+datefin+".png"     
+    PATH = "./plots/"+identification+" "+datedebut+" - "+datefin+".png"    
+    print(PATH)
+    print(os.getcwd())
     plt.savefig(PATH)
-    print("file:///"+PATH.replace(" ", "%20").replace("é", "%C3%A9").replace("\"", "").replace("\\",""))
-    plt.show()
+    print("saved")
+#    plt.show()
     
 
 
@@ -95,9 +108,11 @@ def main(argv):
     # Deal with args
     if len(sys.argv) == 5:
         radar, datedebut, identification = sys.argv[1], sys.argv[2],str(sys.argv[3])+" "+str(sys.argv[4])
-        datefin = datedebut
+        datefin = datedebut #a changer : il faut mettre 1 jour de plus
     elif len(sys.argv) == 6:
-        radar, datedebut,datefin, identification = sys.argv[1], sys.argv[1], sys.argv[2], str(sys.argv[4])+" "+str(sys.argv[5])
+        # radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])+" "+str(sys.argv[5])
+        radar, datedebut,datefin, identification = sys.argv[1], sys.argv[2], sys.argv[3], str(sys.argv[4])
+
     else:
         print('usage: python plotRadar.py @radar JJ-MM-YYYY JJ-MM-YYYY AI AA\nusage: python plotRadar.py @radar JJ-MM-YYYY AI AA\nexample: python plotRadar.py 01:00:5e:50:00:26 12-12-2020 TRA39U 4841AA')
         sys.exit(12)
@@ -105,10 +120,12 @@ def main(argv):
         
     # Read Data    
     df2 = read_data(datedebut,datefin)  
+    identification = df2.iloc[1]["aa"]
     # ID
-    df2["ID"] = [str(ai).replace(" ","")+" "+str(aa).replace(" ","") for ai, aa in zip(df2["AI"],df2["AA"])]
+    #    df2["ID"] = [str(ai).replace(" ","")+" "+str(aa).replace(" ","") for ai, aa in zip(df2["ai"],df2["aa"])]
+    df2["ID"] = df2["aa"]
     # X, Y
-    df2["X"],df2["Y"]=angle2xy(convert(df2["THETA"]),df2["RHO"])
+    df2["X"],df2["Y"]=angle2xy(convert(df2["theta"]),df2["rho"])
         
     # Aggregation on ID
     df3 = df2.groupby('ID')['X'].apply(list).reset_index(name='X')
@@ -117,7 +134,8 @@ def main(argv):
     # Plot radar
     plot_flight(df3,identification,datedebut,datefin)
 
-    return 0
+
+
 
 
 if __name__ == "__main__":
