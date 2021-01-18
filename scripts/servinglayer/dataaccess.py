@@ -7,7 +7,7 @@ import pandas
 client = Elasticsearch(hosts=["192.168.1.53:50000"])
 
 
-def query_range_date(start_date, end_date):
+def query_range_date(start_date, end_date, index):
 
     start_date = datetime.strptime(start_date, '%y/%m/%d-%H:%M')
     end_date = datetime.strptime(end_date, '%y/%m/%d-%H:%M')
@@ -18,7 +18,7 @@ def query_range_date(start_date, end_date):
     if end_ts - start_ts < 0:
         raise ValueError("start date must precede end date")
 
-    #print(f'start query')
+    # print(f'start query on index {index}')
 
     body = {
         "query": {
@@ -36,7 +36,11 @@ def query_range_date(start_date, end_date):
         }
     }
 
-    resp = client.search(index='category48',filter_path=['_scroll_id','hits.hits._source'], body=body, scroll="1s", size=1000)
+    resp = client.search(index=index,filter_path=['_scroll_id','hits.hits._source'], body=body, scroll="1s", size=1000)
+    
+    if not "hits" in resp:
+        print("no hits for this date range")
+        exit(0)
 
     scroll_id = resp['_scroll_id']
     data = []
@@ -54,9 +58,9 @@ def query_range_date(start_date, end_date):
 
     return data
 
-
-def query_range_date_df(start_date, end_date):
-    data = query_range_date(start_date, end_date)
+# exp : 20/04/20-00:00 for 20 April 2020
+def query_range_date_df(start_date, end_date, index='category48v2'):
+    data = query_range_date(start_date, end_date,index)
 
     df = pandas.DataFrame(data=data)
     #print(data[1:5])
@@ -65,10 +69,12 @@ def query_range_date_df(start_date, end_date):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("missing argument, please provide : start_date, end_date following year/month/day-hour:minute")
+        exit(1)
 
-    resp = query_range_date_df(sys.argv[1], sys.argv[2])
+    index = sys.argv[3] if len(sys.argv) >= 4 else "category48v2"
+    resp = query_range_date_df(sys.argv[1], sys.argv[2],index)
 
-    print(len(resp))
-    print(resp.head(5))
+    #print(len(resp))
+    #print(resp.head(5))
