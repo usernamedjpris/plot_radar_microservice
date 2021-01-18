@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/graph") 
+@RequestMapping("") 
 
 
 public class PlotRessource {
 	
-	@GetMapping("") 
+	@GetMapping("/graph") 
 	public String getInfos() { 
 		return "<h1>Ploting Radar Graph</h1><div>localhost:8080/graph/YY-MM-DD-HH:mm_YY-MM-DD-HH:mm/AI/AA</div><div><a href=\"localhost:8080/graph/20-07-29-10:00_20-07-29-12:00/EVX02EK/38173A\">localhost:8080/graph/20-07-29-10:00_20-07-29-12:00/EVX02EK/38173A</div>";
         } 
-	@GetMapping("/{dates}/{ai}/{aa}") 
+	@GetMapping("/graph/{dates}/{ai}/{aa}") 
 	public String getTrajectory(@PathVariable("dates") String dates,@PathVariable("ai") String ai,@PathVariable("aa") String aa) throws IOException, InterruptedException{ 
 	dates = dates.replace("_"," ");
 	//String command = "cmd.exe /c E:/eDocuments/\"projet intégrateur\"/plot_radar_microservice/scripts/plotRadar2.py 01:00:5e:50:00:26 12-12-2020 4841AA TRA39U"; 
@@ -36,6 +36,9 @@ public class PlotRessource {
             }                                                                                                                    
         } 
 
-		return "<div><b>Dates</b> : "+dates+"</div><div><b>AI</b> : "+ai+"</div><div><b>AA</b> : "+aa+"</div><div><b>Image enregistree</b> : "+pathResult+"</div>"; 
+		return "<div><b>Dates</b> : "+dates+"</div><div><b>AI</b> : "+ai+"</div><div><b>AA</b> : "+aa+"</div><div>"+pathResult+"</div>"; 
 	} 
+
+
+
 }
